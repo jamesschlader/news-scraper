@@ -26,11 +26,11 @@ app.use(express.static("public/"));
 // Connect to the Mongo DB
 var db = require("./models");
 
+var MONGODB_URI = process.env.MONGODB_URI || 
+"mongodb://localhost/mongoNewsScrape";
+
 mongoose.connect(
-  "mongodb://localhost/mongoNewsScrape",
-  {
-    useNewUrlParser: true
-  }
+ MONGODB_URI
 );
 
 //Handlebars
