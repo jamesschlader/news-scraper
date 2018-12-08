@@ -2,8 +2,9 @@
   "name": "news-scraper",
   "version": "1.0.0",
   "description": "Gets articles by web scraping and allows users to comment on the article.",
-  "main": "index.js",
+  "main": "server.js",
   "scripts": {
+    "start": "node server.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "Jim Schlader",
