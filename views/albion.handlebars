@@ -1,0 +1,40 @@
+<main>
+    <div class="uk-padding" id="content">
+        <h1 class="uk-heading-primary uk-text-center">Check Out All These Amazing Swords!</h1>
+        <hr>
+    </div>
+
+    <div class="uk-container uk-box-shadow-large">
+        <div class="uk-section uk-section-muted" id="notes">
+
+        </div>
+
+        <table class="uk-table uk-table-hover uk-table-justify uk-table-divider">
+            <hr>
+            <caption>Swords from www.albion-swords.com</caption>
+            <thead>
+                <tr>
+                    <th class="uk-text-justify ">Title</th>
+
+                    <th class="uk-text-justify ">Route</th>
+
+                </tr>
+            </thead>
+            <tbody>
+                {{#each this}}
+                <tr>
+                    <td data={{id}}>{{title}}{{#if note}}
+                        <span uk-icon="comment"></span>
+                        {{/if}}</td>
+
+
+                    <td><a href="https://www.albion-swords.com/" +{{link}}>{{link}}</a></td>
+                </tr>
+                {{/each}}
+            </tbody>
+
+        </table>
+
+    </div>
+    <script src="/js/albion.js"></script>
+</main>
