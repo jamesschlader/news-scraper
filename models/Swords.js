@@ -4,45 +4,42 @@ var mongoose = require("mongoose");
 var Schema = mongoose.Schema;
 
 var SwordsSchema = new Schema({
-  category: {
-    type: Schema.Types.ObjectId,
-    ref: "SwordCategory"
+  name: {
+    type: String,
+    unique: true
   },
   link: {
     type: String,
-    required: true,
-    unique: true
-  },
-  name: {
-    type: String
+    uique: true
   },
   image: {
     type: String
   },
-  overallLength: {
-    type: Number
+  Overallength: {
+    type: String
   },
-  bladeLength: {
-    type: Number
+  BladeLength: {
+    type: String
   },
-  bladeWidth: {
-    type: Number
+  Bladewidth: {
+    type: String
   },
-  centerOfPercussion: {
-    type: Number
+  CoB: {
+    type: String
   },
-  centerOfBalance: {
-    type: Number
+  CoP: {
+    type: String
   },
-  weight: {
-    type: Number
+  Weight: {
+    type: String
   },
+
   note: {
     type: Schema.Types.ObjectId,
     ref: "Note"
   }
 });
 
-var Swords = mongoose.model("Swords", SwordsSchema);
+var Swords = mongoose.model("Sword", SwordsSchema);
 
 module.exports = Swords;

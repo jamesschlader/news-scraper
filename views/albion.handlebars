@@ -4,35 +4,73 @@
         <hr>
     </div>
 
+    <div>
+        <button class="uk-button uk-button-secondary uk-width-1-1 uk-button-large" id="get-swords">Get
+            Swords</button>
+    </div>
+
     <div class="uk-container uk-box-shadow-large">
-        <div class="uk-section uk-section-muted" id="notes">
+
+        <div uk-modal id="notes">
 
         </div>
 
         <table class="uk-table uk-table-hover uk-table-justify uk-table-divider">
             <hr>
             <caption>Swords from www.albion-swords.com</caption>
+
+            {{#if this.length}}
+            <div>No swords to see. Try scraping some.</div>
+            {{else}}
             <thead>
                 <tr>
-                    <th class="uk-text-justify ">Title</th>
+                    <th class="uk-text-justify">
+                        Image
+                    </th>
+                    <th class="uk-text-justify ">Name</th>
+                    <th>Comments</th>
+                    <th class="uk-text-justify">Overall Length</th>
+                    <th class="uk-text-justify">Blade Length</th>
+                    <th class="uk-text-justify">Blade Width</th>
+                    <th class="uk-text-justify">Center of Balance</th>
+                    <th>Center of Percussion</th>
+                    <th>Weight</th>
 
-                    <th class="uk-text-justify ">Route</th>
 
                 </tr>
             </thead>
             <tbody>
                 {{#each this}}
+
                 <tr>
-                    <td data={{id}}>{{title}}{{#if note}}
-                        <span uk-icon="comment"></span>
-                        {{/if}}</td>
+                    {{#if image}}
+                    <td data={{image}}>
+                        <img src={{image}} alt="">
+                    </td>
+                    {{else}}
+                    <td></td>
+                    {{/if}}
+                    <td><a href="https://www.albion-swords.com/" +{{link}} target="blank">{{name}}</a>
 
-
-                    <td><a href="https://www.albion-swords.com/" +{{link}}>{{link}}</a></td>
+                    </td>
+                    <td data={{id}}>
+                        {{#if note}}
+                        <a href="#notes" uk-toggle="#notes"><span uk-icon="comment"></span></a>
+                        {{else}}
+                        <a href="#notes" uk-toggle="#notes"><span uk-icon="plus"></span></a>
+                        {{/if}}
+                    </td>
+                    <td data={{Overalllength}}>{{Overalllength}}</td>
+                    <td>{{BladeLength}}</td>
+                    <td>{{BladeWidth}}</td>
+                    <td>{{CoB}}</td>
+                    <td>{{CoP}}</td>
+                    <td>{{Weight}}</td>
                 </tr>
+
                 {{/each}}
             </tbody>
-
+            {{/if}}
         </table>
 
     </div>

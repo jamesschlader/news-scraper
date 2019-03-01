@@ -4,7 +4,7 @@ var mongoose = require("mongoose");
 var axios = require("axios");
 var cheerio = require("cheerio");
 
-var PORT =  process.env.PORT || 3000;
+var PORT = process.env.PORT || 3000;
 
 // Initialize Express
 var app = express();
@@ -26,12 +26,10 @@ app.use(express.static("public/"));
 // Connect to the Mongo DB
 var db = require("./models");
 
-var MONGODB_URI = process.env.MONGODB_URI || 
-"mongodb://localhost/mongoNewsScrape";
+var MONGODB_URI =
+  process.env.MONGODB_URI || "mongodb://localhost/mongoNewsScrape";
 
-mongoose.connect(
- MONGODB_URI
-);
+mongoose.connect(MONGODB_URI);
 
 //Handlebars
 var exphbs = require("express-handlebars");
@@ -45,75 +43,75 @@ app.engine(
 app.set("view engine", "handlebars");
 
 // Routes
+//require("./routes/apiRoutes")(app);
+//require("./routes/htmlRoutes")(app);
+
 app.get("/", (req, res) => {
-  articles = [];
-  db.Article.find({}).then(dbArticle => {
-    dbArticle.forEach(element => {
-      article = {
-        id: element._id.toString(),
-        title: element.title,
-        link: element.link,
-        date: element.date,
-        author: element.author,
-        note: element.note
-      };
-      articles.push(article);
+  let articles = [];
+  db.Article.find({})
+    .sort({ date: -1 })
+    .then(dbArticle => {
+      dbArticle.forEach(element => {
+        let article = {
+          id: element._id.toString(),
+          title: element.title,
+          link: element.link,
+          date: element.date,
+          author: element.author,
+          note: element.note
+        };
+        articles.push(article);
+      });
+
+      //console.log(`here's the data going to the landing page: `,articles);
+
+      res.render("landing", articles);
     });
-
-    //console.log(`here's the data going to the landing page: `,articles);
-
-    res.render("landing", articles);
-  });
 });
 
 app.get("/ign", (req, res) => {
-  articles = [];
-  db.IgnArticle.find({}).then(dbIgnArticle => {
-    dbIgnArticle.forEach(element => {
-      article = {
-        id: element._id.toString(),
-        title: element.title,
-        link: element.link,
-        note: element.note
-      };
-      articles.push(article);
+  let articles = [];
+  db.IgnArticle.find({})
+    .sort({ _id: -1 })
+    .then(dbIgnArticle => {
+      dbIgnArticle.forEach(element => {
+        let article = {
+          id: element._id.toString(),
+          title: element.title,
+          link: element.link,
+          note: element.note
+        };
+        articles.push(article);
+      });
+
+      //console.log(`here's the data going to the landing page: `,articles);
+
+      res.render("ign", articles);
     });
-
-    //console.log(`here's the data going to the landing page: `,articles);
-
-    res.render("ign", articles);
-  });
 });
 
 app.get("/swords", (req, res) => {
-  swords = [];
+  let swords = [];
   db.Swords.find({}).then(dbSwords => {
     dbSwords.forEach(element => {
-      /*
-      article = {
-        id: element._id.toString(),
-        title: element.title,
-        link: element.link,
-        date: element.date,
-        author: element.author,
-        note: element.note
-      }
-      articles.push(article)
-*/
-    });
+      let article = {
+        id: element._id,
+        ...element._doc
+      };
 
-    //console.log(`here's the data going to the landing page: `,articles);
+      swords.push(article);
+    });
 
     res.render("albion", swords);
   });
 });
 
 app.get("/articles", (req, res) => {
-  articles = [];
+  let articles = [];
   db.Article.find({})
     .then(dbArticle => {
       dbArticle.forEach(element => {
-        article = {
+        let article = {
           id: element._id.toString(),
           title: element.title,
           link: element.link,
@@ -222,6 +220,147 @@ app.get("/scrape/ign", (req, res) => {
   });
 });
 
+app.get("/scrape/swords", (rq, res) => {
+  axios.get("https://www.albion-swords.com/").then(function(response) {
+    // Load the Response into cheerio and save it to a variable
+    // '$' becomes a shorthand for cheerio's selector commands, much like jQuery's '$'
+    var $ = cheerio.load(response.data);
+
+    $("table")
+      .find("div")
+      .prop("align", "center")
+      .each(function(i, element) {
+        var division = $(element)
+          .find("a")
+          .attr("href");
+        var name = $(element)
+          .find("img")
+          .attr("alt");
+        var result = {};
+
+        if (division && name) {
+          result = {
+            division: division,
+            name: name
+          };
+
+          console.log(`Here's the inital result: `, result);
+
+          if (result.division.includes("swords-albion-mark-")) {
+            axios
+              .get(`https://www.albion-swords.com/${result.division}`)
+              .then(function(response) {
+                var $ = cheerio.load(response.data);
+
+                $("table")
+                  .find("td")
+                  .each(function(i, element) {
+                    const base = $(element).find("a");
+                    let name = base.find("img").attr("alt");
+                    let link = base.attr("href");
+                    let image = base.find("img").attr("src");
+
+                    let sword = {
+                      name: name,
+                      link,
+                      image
+                    };
+
+                    if (sword.name !== undefined) {
+                      sword.link = `http://www.albion-swords.com/swords/albion/${
+                        sword.link
+                      }`;
+                      sword.image = `http://www.albion-swords.com${sword.image.replace(
+                        /\.\.\/\.\./,
+                        ""
+                      )}`;
+
+                      axios.get(`${sword.link}`).then(function(response) {
+                        let $ = cheerio.load(response.data);
+
+                        let text = "";
+
+                        $("p").each(function(i, element) {
+                          text = $(element)
+                            .find("font")
+                            .attr("size", "2")
+                            .text();
+
+                          if (text.includes("Specifications")) {
+                            let firstPass = text.slice(
+                              text.indexOf("Specifications")
+                            );
+                            //console.log(`Here's the first pass: `, paragraph);
+
+                            let secondPass = firstPass
+                              .replace(/\s+/g, " ")
+                              .replace(/\n/g, "");
+                            //console.log(`\nSecond pass is `, secondPass);
+
+                            let thirdPass = secondPass.slice(
+                              secondPass.indexOf("Overall"),
+                              secondPass.lastIndexOf("Overall")
+                            );
+                            //console.log(`\nHere's the third pass: `, thirdPass);
+
+                            const fourthPass = thirdPass.split(/\)\s/);
+
+                            // The original text is now split up into an array of parts.
+
+                            //console.log(`\nfourth pass = `, fourthPass);
+
+                            const fifthPass = fourthPass.map(
+                              item => `${item})`
+                            );
+                            fifthPass.pop();
+                            // This cuts the word 'Specifications'out of the array.
+
+                            if (fifthPass.length > 0) {
+                              let specs = {};
+                              let weapon = {};
+
+                              fifthPass.forEach((element, index) => {
+                                const clean1 = element
+                                  .slice(0, element.indexOf(":"))
+                                  .replace(" ", "");
+                                const clean2 = element.slice(
+                                  element.indexOf(":"),
+                                  element.indexOf("(")
+                                );
+                                specs[clean1] = clean2;
+                              });
+
+                              //console.log(`sword is `, sword);
+                              // console.log(`specs is `, specs);
+
+                              weapon = {
+                                ...sword,
+                                ...specs
+                              };
+
+                              db.Swords.init().then(function(err) {
+                                // assert.ifError(err);
+
+                                db.Swords.create(weapon)
+                                  .then(function(dbSword) {
+                                    console.log(`New weapon adding.`);
+                                  })
+                                  .catch(err => {
+                                    console.log(err);
+                                  });
+                              });
+                            }
+                          }
+                        });
+                      });
+                    }
+                  });
+              });
+          }
+        }
+      });
+  });
+});
 
 // Route for grabbing a specific Table Top Gaming Article by id, populate it with it's note
 app.get("/articles/:id", function(req, res) {
@@ -311,7 +450,7 @@ app.post("/articles/ign/:id", function(req, res) {
 
 // Route for grabbing a specific Sword by id, populate it with it's note
 app.get("/articles/swords/:id", function(req, res) {
-  db.Sword.findOne({
+  db.Swords.findOne({
     _id: req.params.id
   })
     // ..and populate all of the notes associated with it

@@ -1,11 +1,16 @@
 <main>
     <div class="uk-padding" id="content">
-        <h1 class="uk-heading-primary uk-text-center">All the Computer Gaming News That's Fit to Scrape!</h1>
+        <h1 class="uk-heading-primary uk-text-center">IGN Computer Gaming News</h1>
         <hr>
     </div>
 
+    <div>
+        <button class="uk-button uk-button-secondary uk-width-1-1 uk-button-large" id="get-ign-news">Get
+            Articles</button>
+    </div>
+
     <div class="uk-container uk-box-shadow-large">
-        <div class="uk-section uk-section-muted" id="notes">
+        <div uk-modal id="notes">
 
         </div>
 
@@ -15,7 +20,7 @@
             <thead>
                 <tr>
                     <th class="uk-text-justify ">Title</th>
-
+                    <th class="uk-text-justify ">Notes</th>
                     <th class="uk-text-justify ">Route</th>
 
                 </tr>
@@ -23,9 +28,14 @@
             <tbody>
                 {{#each this}}
                 <tr>
-                    <td data={{id}}>{{title}} {{#if note}}
-                        <span uk-icon="comment"></span>
-                        {{/if}}</td>
+                    <td>{{title}}</td>
+                    <td data={{id}}>
+                        {{#if note}}
+                        <a href="#notes" uk-toggle="#notes"><span uk-icon="comment"></span></a>
+                        {{else}}
+                        <a href="#notes" uk-toggle="#notes"><span uk-icon="plus"></span></a>
+                        {{/if}}
+                    </td>
 
 
                     <td><a href="http://www.ign.com" +{{link}}>{{link}}</a></td>
